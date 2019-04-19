@@ -93,12 +93,12 @@ func GetDefaultMasks() []ColorBackgroundMask {
 // Kmeans uses the default: k=3, Kmeans++, Median, crop center, resize to 80 pixels, mask out white/black/green backgrounds
 // It returns an array of ColorItem which are three centroids, sorted according to dominance (most frequent first).
 func Kmeans(orgimg image.Image) (centroids []ColorItem, err error) {
-	return KmeansWithAll(DefaultK, orgimg, ArgumentDefault, DefaultSize, GetDefaultMasks())
+	return KmeansWithAll(DefaultK, orgimg, ArgumentDefault, DefaultSize, GetDefaultMasks(), 0)
 }
 
 // KmeansWithArgs takes arguments which consists of the bits, see constants Argument*
 func KmeansWithArgs(arguments int, orgimg image.Image) (centroids []ColorItem, err error) {
-	return KmeansWithAll(DefaultK, orgimg, arguments, DefaultSize, GetDefaultMasks())
+	return KmeansWithAll(DefaultK, orgimg, arguments, DefaultSize, GetDefaultMasks(), 0)
 }
 
 // KmeansWithAll takes additional arguments to define k, arguments (see constants Argument*), size to resize and masks to use
