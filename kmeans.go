@@ -102,7 +102,7 @@ func KmeansWithArgs(arguments int, orgimg image.Image) (centroids []ColorItem, e
 }
 
 // KmeansWithAll takes additional arguments to define k, arguments (see constants Argument*), size to resize and masks to use
-func KmeansWithAll(k int, orgimg image.Image, arguments int, imageReSize uint, bgmasks []ColorBackgroundMask) ([]ColorItem, error) {
+func KmeansWithAll(k int, orgimg image.Image, arguments int, imageReSize uint, bgmasks []ColorBackgroundMask, seed int64) ([]ColorItem, error) {
 
 	img := prepareImg(arguments, bgmasks, imageReSize, orgimg)
 
@@ -123,7 +123,7 @@ func KmeansWithAll(k int, orgimg image.Image, arguments int, imageReSize uint, b
 		return allColors, nil
 	}
 
-	centroids, err := kmeansSeed(k, allColors, arguments)
+	centroids, err := kmeansSeed(k, allColors, arguments, seed)
 	if err != nil {
 		return nil, err
 	}
@@ -363,27 +363,38 @@ func distanceRGB(c ColorItem, p ColorItem) float64 {
 }
 
 // kmeansSeed calculates the initial cluster centroids
-func kmeansSeed(k int, allColors []ColorItem, arguments int) ([]ColorItem, error) {
+func kmeansSeed(k int, allColors []ColorItem, arguments int, seed int64) ([]ColorItem, error) {
 	if k > len(allColors) {
 		return nil, fmt.Errorf("Failed, k larger than len(allColors): %d vs %d\n", k, len(allColors))
 	}
 
-	rand.Seed(time.Now().UnixNano())
+	var customRand *rand.Rand
+	if seed != 0 {
+		customRand = rand.New(rand.NewSource(seed))
+	} else {
+		rand.Seed(time.Now().UnixNano())
+	}
 
 	if IsBitSet(arguments, ArgumentSeedRandom) {
-		return kmeansSeedRandom(k, allColors), nil
+		return kmeansSeedRandom(k, allColors, customRand), nil
 	}
-	return kmeansPlusPlusSeed(k, arguments, allColors), nil
+
+	return kmeansPlusPlusSeed(k, arguments, allColors, customRand), nil
 }
 
 // kmeansSeedRandom picks k random points as initial centroids
-func kmeansSeedRandom(k int, allColors []ColorItem) []ColorItem {
+func kmeansSeedRandom(k int, allColors []ColorItem, customRand *rand.Rand) []ColorItem {
 	var centroids []ColorItem
 
 	taken := make(map[int]bool)
 
 	for i := 0; i < k; i++ {
-		idx := rand.Intn(len(allColors))
+		var idx int
+		if customRand != nil {
+			idx = customRand.Intn(len(allColors))
+		} else {
+			idx = rand.Intn(len(allColors))
+		}
 
 		//check if we already taken this one
 		_, ok := taken[idx]
@@ -398,12 +409,18 @@ func kmeansSeedRandom(k int, allColors []ColorItem) []ColorItem {
 }
 
 // kmeansPlusPlusSeed picks initial centroids using K-Means++
-func kmeansPlusPlusSeed(k int, arguments int, allColors []ColorItem) []ColorItem {
+func kmeansPlusPlusSeed(k int, arguments int, allColors []ColorItem, customRand *rand.Rand) []ColorItem {
 	var centroids []ColorItem
 
 	taken := make(map[int]bool)
 
-	initIdx := rand.Intn(len(allColors))
+	var initIdx int
+	if customRand != nil {
+		initIdx = customRand.Intn(len(allColors))
+	} else {
+		initIdx = rand.Intn(len(allColors))
+	}
+
 	centroids = append(centroids, allColors[initIdx])
 	taken[initIdx] = true
 
@@ -433,7 +450,14 @@ func kmeansPlusPlusSeed(k int, arguments int, allColors []ColorItem) []ColorItem
 			point2distance = append(point2distance, squareDistance)
 		}
 
-		rndpoint := rand.Float64() * totaldistances
+		var randomFloat float64
+		if customRand != nil {
+			randomFloat = customRand.Float64()
+		} else {
+			randomFloat = rand.Float64()
+		}
+
+		rndpoint := randomFloat * totaldistances
 
 		sofar := 0.0
 		for j := 0; j < len(point2distance); j++ {
