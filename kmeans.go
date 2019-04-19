@@ -5,6 +5,7 @@
 // Package prominentcolor finds the K most dominant/prominent colors in an image
 package prominentcolor
 
+//noinspection GoUnresolvedReference
 import (
 	"fmt"
 	"image"
@@ -424,6 +425,7 @@ func kmeansPlusPlusSeed(k int, arguments int, allColors []ColorItem, customRand 
 	}
 
 	centroids = append(centroids, allColors[initIdx])
+	fmt.Println("1: ", len(allColors))
 	taken[initIdx] = true
 
 	for kk := 1; kk < k; kk++ {
@@ -465,6 +467,7 @@ func kmeansPlusPlusSeed(k int, arguments int, allColors []ColorItem, customRand 
 		sofar := 0.0
 		for j := 0; j < len(point2distance); j++ {
 			if rndpoint <= sofar {
+				fmt.Println("Appending centroid", allColors[j])
 				centroids = append(centroids, allColors[j])
 				taken[j] = true
 				break
