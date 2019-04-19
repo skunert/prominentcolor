@@ -15,8 +15,6 @@ import (
 	"sort"
 
 	"time"
-
-	"github.com/lucasb-eyer/go-colorful"
 )
 
 const (
@@ -417,6 +415,7 @@ func kmeansPlusPlusSeed(k int, arguments int, allColors []ColorItem, customRand 
 	var initIdx int
 	if customRand != nil {
 		initIdx = customRand.Intn(len(allColors))
+		fmt.Println("Got initial index: ", initIdx)
 	} else {
 		initIdx = rand.Intn(len(allColors))
 	}
@@ -453,6 +452,7 @@ func kmeansPlusPlusSeed(k int, arguments int, allColors []ColorItem, customRand 
 		var randomFloat float64
 		if customRand != nil {
 			randomFloat = customRand.Float64()
+			fmt.Println("Got float: ", randomFloat)
 		} else {
 			randomFloat = rand.Float64()
 		}
