@@ -15,7 +15,6 @@ import (
 
 	"sort"
 
-	"github.com/lucasb-eyer/go-colorful"
 	"time"
 )
 
@@ -416,6 +415,10 @@ func kmeansPlusPlusSeed(k int, arguments int, allColors []ColorItem, customRand 
 
 	taken := make(map[int]bool)
 
+	for i := 0; i < 10; i++ {
+		fmt.Println(allColors[i])
+	}
+
 	var initIdx int
 	if customRand != nil {
 		initIdx = customRand.Intn(len(allColors))
@@ -452,7 +455,6 @@ func kmeansPlusPlusSeed(k int, arguments int, allColors []ColorItem, customRand 
 			squareDistance := minDistanceToCluster * minDistanceToCluster
 			totaldistances += squareDistance
 			point2distance = append(point2distance, squareDistance)
-			fmt.Printf("quareDistance: ", squareDistance, "total ", totaldistances, "point: ", point2distance)
 		}
 
 		var randomFloat float64
