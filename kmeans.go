@@ -14,7 +14,6 @@ import (
 
 	"sort"
 
-	"github.com/lucasb-eyer/go-colorful"
 	"time"
 )
 
@@ -123,6 +122,7 @@ func KmeansWithAll(k int, orgimg image.Image, arguments int, imageReSize uint, b
 	}
 
 	centroids, err := kmeansSeed(k, allColors, arguments, seed)
+	fmt.Println("Initial centroids ", centroids)
 	if err != nil {
 		return nil, err
 	}
@@ -167,6 +167,7 @@ func KmeansWithAll(k int, orgimg image.Image, arguments int, imageReSize uint, b
 	}
 
 	sortCentroids(centroids)
+	fmt.Println("Final centroids ", centroids)
 	return centroids, nil
 }
 
